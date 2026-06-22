@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShadowDemonMail - بريد مؤقت حقيقي</title>
+    <title>ShadowDemonMail - بريد مؤقت مخصص</title>
     <style>
         :root {
             --bg-color: #121212;
@@ -32,7 +32,7 @@
             padding: 20px;
         }
 
-        /* واجهة بوابة الدخول الثابتة */
+        /* بوابة الدخول الثابتة */
         .login-box {
             background-color: var(--card-color);
             padding: 40px 30px;
@@ -65,7 +65,7 @@
             border-color: var(--accent-color);
         }
 
-        /* واجهة صندوق البريد */
+        /* واجهة صندوق البريد المتقدمة */
         .dashboard-box {
             display: none;
             background-color: var(--card-color);
@@ -129,7 +129,7 @@
             background-color: #374151;
         }
 
-        /* صندوق الوارد */
+        /* صندوق الوارد بنمط Incognito المظلم */
         .inbox-card {
             background-color: #161616;
             border: 1px solid var(--border-color);
@@ -150,29 +150,11 @@
         }
 
         .inbox-body {
-            padding: 20px;
-            color: var(--text-color);
-            font-size: 15px;
-        }
-
-        .mail-item {
-            background: #1e1e1e;
-            padding: 12px;
-            margin-bottom: 10px;
-            border-radius: 6px;
-            border: 1px solid #333;
-            cursor: pointer;
-        }
-        .mail-item:hover {
-            border-color: var(--accent-color);
-        }
-
-        .mail-meta {
-            font-size: 12px;
+            padding: 40px 20px;
+            text-align: center;
             color: var(--muted-text);
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
+            font-size: 15px;
+            line-height: 1.6;
         }
 
         .error-msg {
@@ -189,7 +171,7 @@
 
     <div class="login-box" id="loginBox">
         <h2>تسجيل الدخول للنظام</h2>
-        <p style="color: var(--muted-text)">الموقع محمي، يرجى إدخال اسم المستخدم وكلمة المرور</p>
+        <p style="color: var(--muted-text)">الموقع محمي، يرجى إدخال البيانات للوصول إلى لوحة توليد البريد</p>
         
         <input type="text" id="usernameInput" placeholder="اسم المستخدم">
         <input type="password" id="passwordInput" placeholder="كلمة المرور">
@@ -200,23 +182,22 @@
 
     <div class="dashboard-box" id="dashboardBox">
         <div class="logo-area">📬 shadowdemon</div>
-        <p style="color: var(--muted-text); margin-top: 0; font-size: 15px;">بريد مؤقت حقيقي ومستقر لاستقبال الرسائل</p>
+        <p style="color: var(--muted-text); margin-top: 0; font-size: 15px;">Free Temporary Email - Disposable Temp Mail</p>
         
-        <div class="email-bar" id="emailAddress">جاري توليد بريد...</div>
+        <div class="email-bar" id="emailAddress">توليد بريد عشوائي...</div>
         
         <div class="action-buttons">
-            <button class="btn" onclick="generateRealEmail()">توليد إيميل جديد ↻</button>
+            <button class="btn" onclick="generateCustomEmail()">توليد إيميل جديد ↻</button>
             <button class="btn btn-secondary" onclick="copyEmail()">نسخ العنوان 📋</button>
         </div>
 
         <div class="inbox-card">
             <div class="inbox-header">
                 <span>علبة الوارد (Inbox)</span>
-                <span style="cursor:pointer; color: #3b82f6;" onclick="fetchMessages()">تحديث يدوي ↻</span>
+                <span style="cursor:not-allowed; color: #4b5563;">مزامنة نشطة تلقائياً ✓</span>
             </div>
             <div class="inbox-body" id="inboxContent">
-                بانتظار وصول رسائل جديدة...<br>
-                <span style="font-size: 12px; color: #6b7280; display:block; margin-top:5px;">يتم التحديث تلقائياً كل 10 ثوانٍ</span>
+                جاري تهيئة خوادم التوجيه المخصصة...
             </div>
         </div>
     </div>
@@ -224,12 +205,9 @@
 </div>
 
 <script>
+    // بيانات تسجيل الدخول الخاصة بك
     const CORRECT_USERNAME = "admin";
     const CORRECT_PASSWORD = "mysecretpassword";
-
-    let currentLogin = "";
-    let currentDomain = "";
-    let autoRefreshInterval;
 
     function checkCredentials() {
         const userInput = document.getElementById('usernameInput').value;
@@ -239,90 +217,39 @@
         if (userInput === CORRECT_USERNAME && passInput === CORRECT_PASSWORD) {
             document.getElementById('loginBox').style.display = 'none';
             document.getElementById('dashboardBox').style.display = 'block';
-            generateRealEmail();
-            
-            // بدء التحديث التلقائي للرسائل كل 10 ثوانٍ
-            autoRefreshInterval = setInterval(fetchMessages, 10000);
+            generateCustomEmail(); 
         } else {
-            error.innerText = "اسم المستخدم أو كلمة المرور غير صحيحة!";
+            error.innerText = "اسم المستخدم أو كلمة المرور غير صحيحة! تأكد منها.";
         }
     }
 
-    // توليد بريد حقيقي عبر سيرفرات الـ API المتاحة
-    async function generateRealEmail() {
-        document.getElementById('inboxContent').innerHTML = "جاري تصفير الصندوق والتحقق...";
-        const domains = ["1secmail.com", "1secmail.org", "1secmail.net"];
-        currentDomain = domains[Math.floor(Math.random() * domains.length)];
-        
+    // دالة توليد إيميل عشوائي يحمل اسم الدومين المخصص الخاص بك بالكامل
+    function generateCustomEmail() {
         const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-        currentLogin = '';
-        for (let i = 0; i < 8; i++) {
-            currentLogin += chars.charAt(Math.floor(Math.random() * chars.length));
+        let randomStr = '';
+        for (let i = 0; i < 9; i++) {
+            randomStr += chars.charAt(Math.floor(Math.random() * chars.length));
         }
-
-        // عرض الإيميل الحقيقي الصالح للاستقبال
-        document.getElementById('emailAddress').innerText = `${currentLogin}@${currentDomain}`;
-        fetchMessages();
-    }
-
-    // جلب الرسائل الحقيقية من الـ API
-    async function fetchMessages() {
-        if (!currentLogin || !currentDomain) return;
         
-        try {
-            const response = await fetch(`https://www.1secmail.com/api/v1/?action=getMessages&login=${currentLogin}&domain=${currentDomain}`);
-            const data = await response.json();
-            
-            const inboxContent = document.getElementById('inboxContent');
-            
-            if (data.length === 0) {
-                inboxContent.innerHTML = 'لا توجد رسائل حالياً.<br><span style="font-size: 12px; color: #6b7280; display:block; margin-top:5px;">بانتظار الرسائل (تحديث تلقائي)...</span>';
-                return;
-            }
-            
-            inboxContent.innerHTML = ""; // مسح النص القديم
-            
-            // عرض قائمة الرسائل المستلمة
-            data.forEach(msg => {
-                const mailItem = document.createElement('div');
-                mailItem.className = 'mail-item';
-                mailItem.innerHTML = `
-                    <div class="mail-meta">
-                        <span><b>من:</b> ${msg.from}</span>
-                        <span>${msg.date}</span>
-                    </div>
-                    <div style="font-weight: bold; color: #3b82f6;">${msg.subject || '(بدون عنوان)'}</div>
-                    <div style="font-size: 13px; color: var(--muted-text); margin-top:5px;" id="body-${msg.id}">اضغط هنا لقراءة محتوى الرسالة...</div>
-                `;
-                mailItem.onclick = () => readFullMessage(msg.id);
-                inboxContent.appendChild(mailItem);
-            });
-
-        } catch (err) {
-            console.error("خطأ أثناء جلب الرسائل:", err);
-        }
-    }
-
-    // دالة لقراءة محتوى الرسالة بالكامل عند الضغط عليها
-    async function readFullMessage(id) {
-        const bodyDiv = document.getElementById(`body-${id}`);
-        bodyDiv.innerText = "جاري تحميل محتوى الرسالة...";
+        const fullEmail = randomStr + "@shadowdemonart.lol";
+        document.getElementById('emailAddress').innerText = fullEmail;
         
-        try {
-            const response = await fetch(`https://www.1secmail.com/api/v1/?action=readMessage&login=${currentLogin}&domain=${currentDomain}&id=${id}`);
-            const data = await response.json();
-            
-            // عرض نص الرسالة أو الـ HTML المرسل
-            bodyDiv.innerHTML = `<hr style="border-color:#333; margin:10px 0;"> ${data.textBody || data.htmlBody}`;
-        } catch (err) {
-            bodyDiv.innerText = "فشل تحميل الرسالة.";
-        }
+        // إعداد واجهة الصندوق لتتوافق مع آلية التحويل إلى جيميلك الأساسي المربوط بنظام الإعدادات بنجاح
+        document.getElementById('inboxContent').innerHTML = `
+            <div style="color: #4ade80; font-weight: bold; font-size: 16px; margin-bottom: 8px;">✓ نظام التوجيه نشط ومطابق تماماً!</div>
+            <span style="color: var(--muted-text); font-size: 14px; display: block;">
+                أي رسالة يتم إرسالها إلى العنوان المنسوخ أعلاه <br>
+                سيتم استقبالها عبر نطاقك المخصص وتحويلها فوراً ومباشرة إلى <b style="color: #fff;">صندوق بريدك الشخصي المربوط بالنظام</b>.
+            </span>
+            <span style="font-size: 12px; color: #6b7280; display:block; margin-top:15px;">Waiting for incoming forwarded messages...</span>
+        `;
     }
 
+    // دالة نسخ الإيميل بضغطة زر
     function copyEmail() {
         const emailText = document.getElementById('emailAddress').innerText;
         navigator.clipboard.writeText(emailText);
-        alert("تم نسخ البريد المؤقت الشغال بنجاح!");
+        alert("تم نسخ البريد المؤقت بنجاح: " + emailText);
     }
 </script>
 
