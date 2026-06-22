@@ -1,41 +1,156 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to my website</title>
+    <title>ShadowDemonMail - بريد مؤقت</title>
     <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --card-color: #262626;
+            --accent-color: #3b82f6;
+            --text-color: #ffffff;
+            --muted-text: #aaaaaa;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
+            min-height: 100vh;
         }
 
         .container {
-            text-align: center;
+            width: 100%;
+            max-width: 600px;
             padding: 20px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
         }
 
-        h1 {
-            color: #007bff;
+        /* واجهة تسجيل الدخول */
+        .login-box, .dashboard-box {
+            background-color: var(--card-color);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
         }
+
+        .dashboard-box { display: none; }
+
+        input[type="password"], input[type="text"] {
+            width: 80%;
+            padding: 12px;
+            margin: 15px 0;
+            border: 1px solid #444;
+            border-radius: 6px;
+            background-color: #111;
+            color: #fff;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover { opacity: 0.9; }
+
+        /* واجهة البريد المؤقت */
+        .email-display {
+            background-color: #111;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-family: monospace;
+            margin: 20px 0;
+            border: 1px solid #333;
+            color: var(--accent-color);
+        }
+
+        .inbox-container {
+            background-color: #222;
+            border: 1px solid #333;
+            border-radius: 8px;
+            min-height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--muted-text);
+            margin-top: 20px;
+        }
+
+        .error-msg { color: #ef4444; margin-top: 10px; font-size: 14px; }
     </style>
 </head>
-
 <body>
-    <div class="container">
-        <h1>The site is under construction</h1>
-        <p>This website is under construction. Opening soon..</p>
-    </div>
-</body>
 
+<div class="container">
+
+    <!-- 1. واجهة تسجيل الدخول -->
+    <div class="login-box" id="loginBox">
+        <h2>الدخول للنظام المغلق</h2>
+        <p style="color: var(--muted-text)">يرجى إدخال كلمة المرور الخاصة بك للوصول للموقع</p>
+        <input type="password" id="passwordInput" placeholder="أدخل كلمة المرور">
+        <br>
+        <button onclick="checkPassword()">تسجيل الدخول</button>
+        <div class="error-msg" id="errorMsg"></div>
+    </div>
+
+    <!-- 2. واجهة لوحة التحكم (البريد المؤقت) -->
+    <div class="dashboard-box" id="dashboardBox">
+        <h2 style="margin-bottom: 5px;">ShadowDemonMail</h2>
+        <p style="color: var(--muted-text); margin-top: 0;">بريد مؤقت مخصص لنطاقك</p>
+        
+        <div class="email-display" id="emailAddress">تجري توليد بريد...</div>
+        
+        <button onclick="generateRandomEmail()">تغيير الإيميل ↻</button>
+
+        <div style="text-align: right; margin-top: 25px; font-weight: bold;">الوارد (Inbox)</div>
+        <div class="inbox-container">
+            <div>بانتظار وصول رسائل جديدة تلقائياً...</div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // كلمة المرور التي تحددها أنت (تذكر أنها ظاهرة في كود الفونت إند)
+    const SECRET_PASSWORD = "MyCustomPassword123"; 
+
+    function checkPassword() {
+        const input = document.getElementById('passwordInput').value;
+        const error = document.getElementById('errorMsg');
+        
+        if (input === SECRET_PASSWORD) {
+            document.getElementById('loginBox').style.display = 'none';
+            document.getElementById('dashboardBox').style.display = 'block';
+            generateRandomEmail();
+        } else {
+            error.innerText = "كلمة المرور غير صحيحة، حاول مجدداً.";
+        }
+    }
+
+    function generateRandomEmail() {
+        const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+        let randomStr = '';
+        for (let i = 0; i < 8; i++) {
+            randomStr += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        // دمجها مع الدومين الخاص بك
+        document.getElementById('emailAddress').innerText = randomStr + "@shadowdemonart.lol";
+    }
+</script>
+
+</body>
 </html>
